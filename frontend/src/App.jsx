@@ -13,6 +13,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
+import SessionPage from "./pages/SessionPage";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -82,6 +83,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <DashboardPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/session"
+                    element={
+                        <ProtectedRoute>
+                            <SessionPage />
                         </ProtectedRoute>
                     }
                 />
