@@ -16,11 +16,19 @@ const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
 
 // app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// app.use(
+//     cors({
+//         origin: "http://localhost:5173", // your Vite frontend
+//         credentials: true,
+//         methods: ["GET", "POST", "PUT", "DELETE"], // optional, good to be explicit
+//     })
+// );
+
 app.use(
     cors({
-        origin: "http://localhost:5173", // your Vite frontend
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE"], // optional, good to be explicit
+        origin: "*", // Allow all origins
+        credentials: true, // Allow credentials (cookies)
+        methods: ["GET", "POST", "PUT", "DELETE"], // Optional, good to be explicit
     })
 );
 
