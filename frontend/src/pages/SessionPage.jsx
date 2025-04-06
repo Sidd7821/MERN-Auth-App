@@ -5,10 +5,15 @@ import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
 import toast from "react-hot-toast";
 
+// const API_URL =
+//     import.meta.env.MODE === "development"
+//         ? "http://localhost:5001/api/session"
+//         : "/api/session";
+
 const API_URL =
     import.meta.env.MODE === "development"
         ? "http://localhost:5001/api/session"
-        : "/api/session";
+        : `${window.location.origin}/api/session`;
 
 const SessionPage = () => {
     const { logout } = useAuthStore();
@@ -26,6 +31,7 @@ const SessionPage = () => {
         isActive: true,
     });
 
+    console.log("SessionPage rendered", window.location.origin);
     const fetchSessions = async () => {
         try {
             const response = await axios.post(`${API_URL}/list`);
