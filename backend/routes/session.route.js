@@ -11,6 +11,7 @@ import {
 import { verifyToken } from "../middleware/verifyToken.js";
 import {
     createSession,
+    deleteSessionById,
     getSessionById,
     listSession,
     updateSession,
@@ -27,6 +28,7 @@ router.post("/list", listSession);
 router.get("/:id", getSessionById);
 router.get("/getSession", listSession);
 
+router.delete("/:id", deleteSessionById);
 // router.post("/reset-password/:token", resetPassword);
 
 export default router;

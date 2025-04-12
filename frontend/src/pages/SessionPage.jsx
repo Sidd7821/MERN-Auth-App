@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
 import toast from "react-hot-toast";
+import { ExternalLink } from "lucide-react";
+// import { Trash2 } from "lucide-react";
 
 // const API_URL =
 //     import.meta.env.MODE === "development"
@@ -22,7 +24,8 @@ const SessionPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
-
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
     const [formData, setFormData] = useState({
         name: "",
         value: "",
@@ -111,6 +114,23 @@ const SessionPage = () => {
         }
     };
 
+    const handleDeleteClick = (id) => {
+        setDeleteId(id);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await axios.delete(`${API_URL}/${deleteId}`);
+            toast.success("Session deleted successfully!");
+            setShowDeleteModal(false);
+            fetchSessions();
+        } catch (error) {
+            console.error("Error deleting session:", error);
+            toast.error("Failed to delete session.");
+        }
+    };
+
     const handleCopy = async (text) => {
         try {
             await navigator.clipboard.writeText(text);
@@ -152,20 +172,54 @@ const SessionPage = () => {
                         return (
                             <motion.div
                                 key={session._id}
-                                className="p-5 bg-gray-900 bg-opacity-80 rounded-xl shadow-xl border border-gray-800"
+                                className="p-5 bg-gray-900 bg-opacity-80 rounded-xl shadow-xl border border-gray-800 relative"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 * index }}
                             >
-                                <h3 className="text-xl font-semibold text-purple-400 mb-2">
+                                {/* Delete button in top right corner */}
+                                <button
+                                    onClick={() =>
+                                        handleDeleteClick(session._id)
+                                    }
+                                    className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
+                                    aria-label="Delete session"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                </button>
+
+                                <h3 className="text-xl font-semibold text-purple-400 mb-2 pr-6">
                                     {session.name}
                                 </h3>
                                 <p className="text-gray-300 mb-1">
                                     {session.description}
                                 </p>
-                                <p className="text-gray-400 text-sm mb-1">
-                                    URL: {session.url}
-                                </p>
+                                <div className="flex items-center text-gray-400 text-sm mb-1 space-x-2">
+                                    <span>URL: {session.url}</span>
+                                    {session.url && (
+                                        <a
+                                            href={session.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-purple-400 hover:text-purple-500"
+                                        >
+                                            <ExternalLink size={16} />
+                                        </a>
+                                    )}
+                                </div>
                                 <p className="text-sm text-gray-500 mb-2">
                                     Created: {formatDate(session.createdAt)}
                                 </p>
@@ -213,6 +267,7 @@ const SessionPage = () => {
                 </motion.button>
             </motion.div>
 
+            {/* Add/Edit Modal */}
             <AnimatePresence>
                 {showModal && (
                     <motion.div
@@ -289,6 +344,47 @@ const SessionPage = () => {
                                     className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700"
                                 >
                                     {isEditing ? "Update" : "Save"}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {showDeleteModal && (
+                    <motion.div
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="bg-gray-900 p-6 rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                        >
+                            <h3 className="text-2xl font-semibold text-red-400 mb-4 text-center">
+                                Confirm Deletion
+                            </h3>
+                            <p className="text-gray-300 mb-6 text-center">
+                                Are you sure you want to delete this session?
+                                This action cannot be undone.
+                            </p>
+                            <div className="flex justify-center space-x-4">
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteConfirm}
+                                    className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"
+                                >
+                                    Delete
                                 </button>
                             </div>
                         </motion.div>

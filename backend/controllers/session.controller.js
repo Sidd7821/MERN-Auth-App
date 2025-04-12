@@ -201,3 +201,30 @@ export const getAllSessions = async (req, res) => {
             .json({ message: "Something went wrong! Please try again later." });
     }
 };
+
+export const deleteSessionById = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const session = await SessionModel.findById(id);
+
+        if (!session || session.isDeleted) {
+            return res.status(404).json({
+                status: 404,
+                message: "Session not found or already deleted.",
+            });
+        }
+
+        session.isDeleted = true;
+        await session.save();
+
+        return res.status(200).json({
+            status: 200,
+            message: "Session deleted (soft delete) successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Something went wrong! Please try again later.",
+        });
+    }
+};
